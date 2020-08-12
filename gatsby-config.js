@@ -38,6 +38,10 @@ module.exports = {
         siteUrl: config.siteUrl,
     },
     plugins: [
+        {
+            resolve: `gatsby-plugin-create-client-paths`,
+            options: { prefixes: [`/preview/*`] },
+        },
         /**
          *  Content Plugins
          */
