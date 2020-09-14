@@ -27,6 +27,31 @@ if (process.env.NODE_ENV === `production` && config.siteUrl === `http://localhos
 }
 
 /**
+ * Development-only plugins
+ */
+const devPlugins = [
+	{
+		resolve: `gatsby-plugin-create-client-paths`,
+		options: { prefixes: [`/preview/*`] },
+	},
+]
+
+/**
+ * Production-only plugins
+ */
+const prodPlugins = [
+	{
+		// This plugin is usually active by default, but by making it specific
+		// you can override its options. In this case, the ignore key.
+		resolve: `gatsby-plugin-page-creator`,
+		options: {
+			path: path.join(__dirname, `src`, `pages`),
+			ignore: [`preview.js`],
+		},
+	},
+]
+
+/**
 * This is the place where you can tell Gatsby which plugins to use
 * and set them up the way you want.
 *
@@ -38,20 +63,13 @@ module.exports = {
         siteUrl: config.siteUrl,
     },
     plugins: [
-        {
-            resolve: `gatsby-plugin-create-client-paths`,
-            options: { prefixes: [`/preview/*`] },
-        },
+        /**
+         * Environment-dependent plugins
+         */
+		...(process.env.NODE_ENV === `development` ? devPlugins : prodPlugins),
         /**
          *  Content Plugins
          */
-        {
-            resolve: `gatsby-source-filesystem`,
-            options: {
-                path: path.join(__dirname, `src`, `pages`),
-                name: `pages`,
-            },
-        },
         // Setup for optimised images.
         // See https://www.gatsbyjs.org/packages/gatsby-image/
         {
