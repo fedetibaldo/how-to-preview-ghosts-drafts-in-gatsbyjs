@@ -35,33 +35,20 @@ class PreviewPage extends React.Component {
 		if (this.props.uuid) {
 			// endpoints params
 			const browseParams = {
-				fields: `id,uuid`,
-			}
-			const readParams = {
+				filter: `uuid:${this.props.uuid}`,
 				formats: `html`,
 			}
 
 			// retrieve a brief list of posts and pages
 			const endpoints = docTypes.map(docType => docType.endpoint)
 			const requests = endpoints.map(endpoint => endpoint.browse(browseParams))
-			const responses = await Promise.all(requests)
+			const results = (await Promise.all(requests)).map(resultsList => resultsList[0])
 
-			// find the document whose uuid matches the path parameter
-			let type = null, id = null
+			const index = results.findIndex(Boolean)
 
-			for (let i = 0; i < responses.length; i++) {
-				let document = responses[i].find(document => document.uuid === this.props.uuid)
-				if (document) {
-					type = docTypes[i]
-					id = document.id
-					break
-				}
-			}
-
-			if (id) {
-				// get the full document
-				const document = await type.endpoint.read({ id }, readParams)
-				// store state
+			if (index != -1) {
+				const document = results[index]
+				const type = docTypes[index]
 				this.setState({ document, type })
 			}
 		}
